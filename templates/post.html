@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    
+    <!-- Заголовок и мета-информация поста -->
+    <div class="mb-4">
+        <h1 class="display-5 fw-bold">{{ post.title }}</h1>
+        <p class="text-muted">
+            Автор: <strong>{{ post.author }}</strong> | 
+            Опубликовано: <i>{{ post.date.strftime('%d.%m.%Y в %H:%M') }}</i>
+        </p>
+    </div>
+
+    <!-- Изображение поста -->
+    <div class="mb-4 text-center">
+        <!-- Используем url_for для правильного пути к статике -->
+        <img src="{{ url_for('static', filename='images/' + post.image_id) }}" 
+             class="img-fluid rounded shadow-sm" 
+             alt="Post Image">
+    </div>
+
+    <!-- Текст поста -->
+    <div class="mb-5">
+        <p class="lead">{{ post.text }}</p>
+    </div>
+
+    <hr class="my-5">
+
+    <!-- Форма комментариев -->
+    <div class="mb-5 bg-light p-4 rounded">
+        <h3>Оставьте комментарий</h3>
+        <form action="#" method="POST">
+            <div class="mb-3">
+                <label for="commentText" class="form-label">Ваш комментарий</label>
+                <textarea class="form-control" id="commentText" rows="3" placeholder="Напишите что-нибудь..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Отправить</button>
+        </form>
+    </div>
+
+    <!-- Список комментариев -->
+    <h3 class="mb-4">Комментарии</h3>
+    
+    <!-- Макрос для рекурсивного вывода комментариев -->
+    {% macro render_comments(comments) %}
+        {% for comment in comments %}
+        <div class="d-flex mb-4">
+            <div class="flex-shrink-0">
+                <!-- Заглушка аватара, так как у комментариев нет своих ID картинок -->
+                <img src="{{ url_for('static', filename='images/avatar.jpg') }}" 
+                     alt="Avatar" 
+                     class="rounded-circle" 
+                     width="50" 
+                     height="50">
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <h5 class="mb-1">{{ comment.author }} <small class="text-muted fw-light"><i>Комментарий</i></small></h5>
+                <p class="mb-2">{{ comment.text }}</p>
+                
+                <!-- Рекурсивный вызов, если есть ответы (replies) -->
+                {% if comment.replies %}
+                <div class="ms-5 mt-3 border-start ps-3">
+                    {{ render_comments(comment.replies) }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% endmacro %}
+
+    <!-- Вызов макроса с передачей списка комментариев из поста -->
+    {{ render_comments(post.comments) }}
+
+</div>
+{% endblock %}
+
+{% block footer %}
+<footer class="py-3 my-4 border-top">
+    <p class="text-center text-muted">Алтайская Мария. Группа 241-327</p>
+</footer>
+{% endblock %}
